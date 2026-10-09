@@ -48,15 +48,20 @@ if __name__ == "__main__":
     
     # Запуск обучения
     print("\nНачало обучения")
+
+    # Запуск обучения
     optimizer = model_trainer.train(
         train_loader=train_loader,
         val_loader=valid_loader,
-        num_epochs=5,           # Количество эпох
-        eval_freq=50,            # Оценка каждые 50 шагов
-        eval_iter=5,             # Количество батчей для оценки
-        start_context="В начале было",  # Русский промпт для генерации
-        lr=5e-4,                 # Скорость обучения
-        weight_decay=0.1         # Затухание весов
+        num_epochs=3,
+        eval_freq=100,
+        eval_iter=10,
+        lr=3e-4,
+        weight_decay=0.1,
+        warmup_steps=500,
+        max_grad_norm=1.0,
+        gradient_accumulation_steps=16,
+        start_context="### Запрос:\nНапиши функцию для"
     )
     
     # Тестирование генерации на русском языке
@@ -72,7 +77,7 @@ if __name__ == "__main__":
     ]
     
     for prompt in test_prompts:
-        print(f"\n📝 Промпт: '{prompt}'")
+        print(f"\nПромпт: '{prompt}'")
         model_trainer.generate_text(
             prompt, 
             max_new_tokens=50, 
