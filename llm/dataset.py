@@ -1,7 +1,7 @@
 # dataset.py (обновленная версия create_dataset)
 import torch
 from torch.utils.data import Dataset, DataLoader
-from tokenizator import tokenizer_gpt2
+from .tokenizator import tokenizer_gpt2
 
 class GPTDatasetV1(Dataset):
     def __init__(self, txt, tokenizer, max_length, stride):
@@ -31,17 +31,19 @@ def create_dataset(train_filename: str, valid_filename: str, model_cfg: dict, tr
     with open(valid_filename, "r", encoding="utf-8") as file:
         text_data_valid = file.read()
 
-    print(f"Размер текста для обучения: {len(text_data_train)} символов.")
-    print(f"Размер текста для тестирования: {len(text_data_valid)} символов.")
+    print(f"Размер считанного текста: {len(text_data_train)} символов.")
     
     split_idx = int(train_ratio * len(text_data_train))
     train_data = text_data_train[:split_idx]
     val_data = text_data_train[split_idx:]
 
+    print(f"Размер текста для тренировка: {len(train_data)} символов.")
+    print(f"Размер текста для тестирования: {len(val_data)} символов.")
+
     print("Создание тренировочного DataLoader...")
     train_loader = DataLoader(
         GPTDatasetV1(train_data, tokenizer_gpt2, model_cfg["context_length"], model_cfg["context_length"]),
-        batch_size=4, # Можно увеличить до 8 или 16, если позволяет VRAM
+        batch_size=4, # Можно увеличить до 8 или 16, если позволяет VRAM. Было 4, надо попробовать с 8
         shuffle=True,
         drop_last=True,
         num_workers=0 # На Windows лучше 0, на Linux можно поставить 2-4

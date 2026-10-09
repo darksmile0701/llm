@@ -1,8 +1,8 @@
 import flet as ft
 import os
 import asyncio
-from prepre_dataset import prepare_russian_corpus
-from train_tokenizer import train_custom_bpe
+
+from llm import prepare_russian_corpus, train_custom_bpe
 
 
 class DataTab:

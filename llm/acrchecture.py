@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-from multiattention import MultiHeadAttention
+from .multiattention import MultiHeadAttention
 
 class GELU(nn.Module):
     def __init__(self):

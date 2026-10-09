@@ -1,7 +1,7 @@
 import torch
-from traning import GPTTrainer
-from dataset import create_dataset
-from config import GPT_CONFIG_124M
+from .traning import GPTTrainer
+from .dataset import create_dataset
+from .config import GPT_CONFIG_124M
 
 if __name__ == "__main__":
     # Конфигурация модели
@@ -23,7 +23,7 @@ if __name__ == "__main__":
     print("=" * 70)
     
     # Загрузка данных (используем объединенный русский корпус)
-    print("\nЗагрузка данных...")
+    print("\nЗагрузка данных")
     corpus_file = "./model/russian_corpus.txt"  # Файл из prepare_dataset.py
     
     try:
@@ -43,20 +43,25 @@ if __name__ == "__main__":
         print(f"   Доступно памяти: {torch.cuda.get_device_properties(0).total_memory / 1e9:.2f} GB")
     
     # Инициализация тренера
-    print("\nИнициализация модели...")
+    print("\nИнициализация модели")
     model_trainer = GPTTrainer(gpt_cfg, device)
     
     # Запуск обучения
-    print("\nНачало обучения...")
+    print("\nНачало обучения")
+
+    # Запуск обучения
     optimizer = model_trainer.train(
         train_loader=train_loader,
         val_loader=valid_loader,
-        num_epochs=10,           # Количество эпох
-        eval_freq=50,            # Оценка каждые 50 шагов
-        eval_iter=5,             # Количество батчей для оценки
-        start_context="В начале было",  # Русский промпт для генерации
-        lr=5e-4,                 # Скорость обучения
-        weight_decay=0.1         # Затухание весов
+        num_epochs=3,
+        eval_freq=100,
+        eval_iter=10,
+        lr=3e-4,
+        weight_decay=0.1,
+        warmup_steps=500,
+        max_grad_norm=1.0,
+        gradient_accumulation_steps=16,
+        start_context="### Запрос:\nНапиши функцию для"
     )
     
     # Тестирование генерации на русском языке
@@ -72,7 +77,7 @@ if __name__ == "__main__":
     ]
     
     for prompt in test_prompts:
-        print(f"\n📝 Промпт: '{prompt}'")
+        print(f"\nПромпт: '{prompt}'")
         model_trainer.generate_text(
             prompt, 
             max_new_tokens=50, 
@@ -93,11 +98,11 @@ if __name__ == "__main__":
     model_trainer.print_training_summary()
     
     # Визуализация потерь
-    print("\nПостроение графиков...")
+    print("\nПостроение графиков")
     model_trainer.plot_losses()
     
     # Сохранение модели
-    print("\nСохранение модели...")
+    print("\nСохранение модели")
     import os
     os.makedirs("./model", exist_ok=True)
     model_trainer.save_checkpoint("./model/model.pth", optimizer)
